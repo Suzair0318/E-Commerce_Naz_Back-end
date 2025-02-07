@@ -2,25 +2,53 @@ const Cart_DB = require('../models/cart_model');
 const Order_DB = require('../models/orders_models');
 const Product_DB = require('../../products/models/product_model');
 // const Whast_app_Client = require('../../../../index');
-const { Client, LocalAuth } = require("whatsapp-web.js");
+// const { Client, LocalAuth } = require("whatsapp-web.js");
 const qrcode = require("qrcode-terminal");
+const { Client, RemoteAuth } = require("whatsapp-web.js");
+const { MongoStore } = require("wwebjs-mongo");
+const mongoose = require('../../../../src/connection/conection');
+
+// Ensure MongoDB is connected before initializing MongoStore
+mongoose.connection.once("open", () => {
+  console.log("✅ MongoDB Connection is Open");
+
+  const store = new MongoStore({ mongoose });
+
+  const client = new Client({
+    authStrategy: new RemoteAuth({
+      store: store,
+      backupSyncIntervalMs: 60000,
+    }),
+  });
+
+  client.on("qr", (qr) => {
+    console.log("🔹 QR Code Received, Scan it using WhatsApp!");
+    qrcode.generate(qr, { small: true }); // ✅ Properly Display QR Code
+  });
+
+  client.on("ready", () => {
+    console.log("✅ WhatsApp Bot is Ready!");
+  });
+
+  client.initialize();
+});
 
 // Initialize WhatsApp client with session storage
-const client = new Client({
-  authStrategy: new LocalAuth(), // Saves session automatically
-});
+// const client = new Client({
+//   authStrategy: new LocalAuth(), // Saves session automatically
+// });
 
-client.on("qr", (qr) => {
-  console.log("Scan this QR Code to login:");
-  qrcode.generate(qr, { small: true });
-});
+// client.on("qr", (qr) => {
+//   console.log("Scan this QR Code to login:");
+//   qrcode.generate(qr, { small: true });
+// });
 
-client.on("ready", () => {
-  console.log("WhatsApp is ready and session is saved!");
-});
+// client.on("ready", () => {
+//   console.log("WhatsApp is ready and session is saved!");
+// });
 
-// Start WhatsApp client
-client.initialize();
+// // Start WhatsApp client
+// client.initialize();
 
 
 
