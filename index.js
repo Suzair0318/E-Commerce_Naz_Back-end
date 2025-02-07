@@ -15,7 +15,7 @@ app.use(express.json());
 
 // Optional: Add specific configuration for CORS
 const corsOptions = {
-    origin: 'http://localhost:3001', // Allow requests from this origin
+    origin: '*', // Allow requests from this origin
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
 };
   

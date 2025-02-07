@@ -1,19 +1,18 @@
 const Cart_DB = require('../models/cart_model');
 const Order_DB = require('../models/orders_models');
 const Product_DB = require('../../products/models/product_model');
-// const Whast_app_Client = require('../../../../index');
-// const { Client, LocalAuth } = require("whatsapp-web.js");
 const qrcode = require("qrcode-terminal");
 const { Client, RemoteAuth } = require("whatsapp-web.js");
 const { MongoStore } = require("wwebjs-mongo");
 const mongoose = require('../../../../src/connection/conection');
 
 // Ensure MongoDB is connected before initializing MongoStore
-mongoose.connection.once("open", () => {
+mongoose.connection.once("open", async () => {
   console.log("✅ MongoDB Connection is Open");
 
-  const store = new MongoStore({ mongoose });
-
+  // ✅ Fix MongoStore initialization
+  const store = new MongoStore({ mongoose: mongoose});
+ 
   const client = new Client({
     authStrategy: new RemoteAuth({
       store: store,
@@ -23,33 +22,29 @@ mongoose.connection.once("open", () => {
 
   client.on("qr", (qr) => {
     console.log("🔹 QR Code Received, Scan it using WhatsApp!");
-    qrcode.generate(qr, { small: true }); // ✅ Properly Display QR Code
+    qrcode.generate(qr, { small: true });
   });
 
-  client.on("ready", () => {
+  client.on("authenticated", () => {
+    console.log("✅ Authenticated & Session Saved in MongoDB!");
+  });
+
+  client.on("ready", async () => {
     console.log("✅ WhatsApp Bot is Ready!");
+  });
+  
+  client.on("auth_failure", (msg) => {
+    console.error("❌ Authentication Failed:", msg);
+  });
+
+  client.on("disconnected", async (reason) => {
+    console.log("❌ Client Disconnected:", reason);
+    await store.clear();
+    console.log("🗑️ Session Cleared, Restart Required!");
   });
 
   client.initialize();
 });
-
-// Initialize WhatsApp client with session storage
-// const client = new Client({
-//   authStrategy: new LocalAuth(), // Saves session automatically
-// });
-
-// client.on("qr", (qr) => {
-//   console.log("Scan this QR Code to login:");
-//   qrcode.generate(qr, { small: true });
-// });
-
-// client.on("ready", () => {
-//   console.log("WhatsApp is ready and session is saved!");
-// });
-
-// // Start WhatsApp client
-// client.initialize();
-
 
 
 module.exports = {
