@@ -15,7 +15,7 @@ app.use(express.json());
 
 // Optional: Add specific configuration for CORS
 const corsOptions = {
-    origin: '*', // Allow requests from this origin
+    origin: 'https://e-commerce-naz-back-end.vercel.app', // Allow requests from this origin
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
 };
   
