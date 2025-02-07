@@ -30,7 +30,7 @@ app.use('/admin/orders' , admin_orders_routes );
 // Export app for server.js
 app.listen( process.env.PORT , () => console.log(`Server Started ${process.env.PORT}`));
 
-module.exports = app;
+
 
 
 
